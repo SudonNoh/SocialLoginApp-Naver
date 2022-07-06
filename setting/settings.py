@@ -44,6 +44,8 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     
+    'django_extensions',
+    
     # dj_rest_auth 의 registration 을 사용하려면 app에 추가해주어야 한다.
     'django.contrib.sites',
     
@@ -179,3 +181,5 @@ SIMPLE_JWT = {
     'ALGORITHM': 'HS256',
     'SIGNING_KEY': SECRET_KEY,
 }
+
+REST_SESSION_LOGIN = False

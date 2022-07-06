@@ -1,4 +1,5 @@
 # settings.py 에서 설정한 MAIN_DOMAIN 등을 불러오기 위해 import 함
+from ast import Import
 from json import JSONDecodeError
 
 from django.conf import settings
@@ -15,8 +16,8 @@ import requests
 from user.models import User
 
 from allauth.socialaccount.providers.naver import views as naver_views
-from allauth.socialaccount.providers.oauth2.client import OAuth2Client
 from dj_rest_auth.registration.views import SocialLoginView
+
 
 # main domain(http://127.0.0.1:8000)
 main_domain = settings.MAIN_DOMAIN
@@ -90,19 +91,17 @@ class NaverCallbackAPIView(APIView):
 
             try:
                 user = User.objects.get(email=email)
-                print("naver access_token : ", access_token)
                 data = {'access_token': access_token, 'code': code}
                 # accept 에는 token 값이 json 형태로 들어온다({"key"}:"token value")
                 # 여기서 오는 key 값은 authtoken_token에 저장된다.
                 accept = requests.post(
                     f"{main_domain}/user/naver/login/success", data=data
                 )
-                print("내부 token : ", accept.json()['access_token'])
+
                 # 만약 token 요청이 제대로 이루어지지 않으면 오류처리
                 if accept.status_code != 200:
                     return JsonResponse({"error": "Failed to Signin."}, status=accept.status_code)
                 return Response(accept.json(), status=status.HTTP_200_OK)
-                # return JsonResponse(accept.json())
 
             except User.DoesNotExist:
                 data = {'access_token': access_token, 'code': code}
@@ -111,7 +110,7 @@ class NaverCallbackAPIView(APIView):
                 )
                 # token 발급
                 return Response(accept.json(), status=status.HTTP_200_OK)
-                # return JsonResponse(accept.json())
+
         except:
             return JsonResponse({
                 "error": "error",
@@ -120,4 +119,3 @@ class NaverCallbackAPIView(APIView):
 
 class NaverToDjangoLoginView(SocialLoginView):
     adapter_class = naver_views.NaverOAuth2Adapter
-    client_class = OAuth2Client
