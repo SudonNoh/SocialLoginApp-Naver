@@ -69,7 +69,6 @@ class NaverCallbackAPIView(APIView):
                 raise JSONDecodeError(error)
 
             access_token = token_response_json.get("access_token")
-
             # User info get request
             user_info_request = requests.get(
                 "https://openapi.naver.com/v1/nid/me",
@@ -91,12 +90,14 @@ class NaverCallbackAPIView(APIView):
 
             try:
                 user = User.objects.get(email=email)
+                print("naver access_token : ", access_token)
                 data = {'access_token': access_token, 'code': code}
                 # accept 에는 token 값이 json 형태로 들어온다({"key"}:"token value")
                 # 여기서 오는 key 값은 authtoken_token에 저장된다.
                 accept = requests.post(
                     f"{main_domain}/user/naver/login/success", data=data
                 )
+                print("내부 token : ", accept.json()['access_token'])
                 # 만약 token 요청이 제대로 이루어지지 않으면 오류처리
                 if accept.status_code != 200:
                     return JsonResponse({"error": "Failed to Signin."}, status=accept.status_code)
